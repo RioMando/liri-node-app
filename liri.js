@@ -1,19 +1,22 @@
 //To red and set environment variables with dotenv package
 require("dotenv").config();
 
-//Import keys.js file with Spotify and Tweeter's keys
-var keys = require("./keys.js");
-
 var Twitter = require('twitter');
 var Spotify = require('node-spotify-api');
 
+//Import keys.js file with Spotify and Tweeter's keys
+var keys = require("./keys.js");
+
 // Variables to store the keys
-console.log(keys.spotify); 
+// console.log(keys.spotify);
+// console.log(keys.twitter);
+// console.log(keys.spotify.id);
+// console.log(keys.spotify.secret);
 
 var client = new Twitter(keys.twitter);
 var spotify = new Spotify(keys.spotify);
 
-console.log("Here: " + process.env.TWITTER_CONSUMER_KEY) 
+// console.log("Here: " + process.env.TWITTER_CONSUMER_KEY) 
 
 
 // Include the request npm package (Don't forget to run "npm install request" in this folder first!)
@@ -51,12 +54,20 @@ switch (option) {
 
 //In case that the given option is not in the above 4
 if (!valid){
-	console.log("Not a valid option. Try Again!");
+	console.log("\n" + option + " Is not a valid option. Try Again!\n\nValid options are:");
+	console.log("  my-tweets\n  spotify-this-song\n  movie-this\n  do-what-it-says");
 }
 
 // 
 function myTweets() {
-	console.log("Here goes the code for Tweeter");
+	var params = {screen_name: '', count:20, user_id: 955267080353468416};
+	client.get('statuses/user_timeline', params, function(error, tweets, response) {	
+	    if (!error) {
+		    for(var i = tweets.length; i > 0; i--){
+			   	console.log("\n\n" + tweets[i-1].created_at + "\n" + tweets[i-1].text);
+			}
+		}
+	});
 }
 
 function spotifyThis() {
@@ -74,17 +85,18 @@ function movie() {
 
 		// If the request is successful
 		if (!error && response.statusCode === 200) {
-
+			var movieInfo = JSON.parse(body);
+			
 			// Parse the body of the site and recover just the imdbRating
 			// (Note: The syntax below for parsing isn't obvious. Just spend a few moments dissecting it).
-			console.log("\n\nMovie Title: " + JSON.parse(body).Title + 
-				"\nRelease Year: " + JSON.parse(body).Year +
-				"\n" + JSON.parse(body).Ratings[0].Source + ": " + JSON.parse(body).Ratings[0].Value +
-				"\n" + JSON.parse(body).Ratings[1].Source + ": " + JSON.parse(body).Ratings[1].Value +
-				"\nCountry: " + JSON.parse(body).Country +
-				"\nLanguage: " + JSON.parse(body).Language +
-				"\nActors: " + JSON.parse(body).Actors +
-				"\n\nPlot: " + JSON.parse(body).Plot
+			console.log("\n\nMovie Title: " + movieInfo.Title + 
+				"\nRelease Year: " + movieInfo.Year +
+				"\n" + movieInfo.Ratings[0].Source + ": " + movieInfo.Ratings[0].Value +
+				"\n" + movieInfo.Ratings[1].Source + ": " + movieInfo.Ratings[1].Value +
+				"\nCountry: " + movieInfo.Country +
+				"\nLanguage: " + movieInfo.Language +
+				"\nActors: " + movieInfo.Actors +
+				"\n\nPlot: " + movieInfo.Plot
 			); //End console.log
 		}
 	});
