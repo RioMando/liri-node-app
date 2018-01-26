@@ -35,7 +35,7 @@ var displayTime = "";
 var timeCT = ";"
 
 var option = process.argv[2];
-var nameMovieOrSong = process.argv[3];
+var movieSongName = process.argv[3];
 var valid = false;
 
 switch (option) {
@@ -46,18 +46,11 @@ switch (option) {
 
 	case "spotify-this-song":
 	valid = true;
-	if (!nameMovieOrSong) {
-		nameMovieOrSong = "The Sign";
-	}
-	console.log("\nLooking for \"" + nameMovieOrSong + "\" song.");
 	spotifyThis();
 	break;
 
 	case "movie-this":
 	valid = true;
-	if (!nameMovieOrSong) {
-		nameMovieOrSong = "Mr. Nobody.";
-	}
 	movie();
 	break
 
@@ -126,51 +119,63 @@ function displayTweets() {
 
 
 function spotifyThis() {
+	console.log("Here goes the code for Spotify");
 
-	spotify.search({ type: 'track', query: nameMovieOrSong, limit: 1 })
-  	.then(function(response) {
+//Option 1:
+// spotify.search({ type: 'track', query: movieSongName, limit: 1 }, function(err, data) {
+//   if (err) {
+//     return console.log('Error occurred: ' + err);
+//   }
+// console.log(data); 
+// var info = data;
+// console.log(data.tracks.items[0]); 
+// console.log("Name: " + data.album); 
+// });
+
+  //Option 2:
+	spotify
+		.search({ type: 'track', query: movieSongName, limit: 1 })
+  		.then(function(response) {
   			
-		// console.log(response);
-		var infoSong = JSON.stringify(response); 
-   		fs.writeFile("infoSong.txt", infoSong, function(err) {
-    		if (err) {
-      			return console.log(err);
-    		}
+  			// console.log(response);
+  			var infoSong = JSON.stringify(response); 
+    		console.log("\nArtist: " + response.tracks.items[0].album.artists[0].name);
+    	
+    		// console.log("\n: " + infoSong.tracks.items);
 
-    	//Variables to be used for the option that more that 1 artist perform a track
-    	var artists = "";
-    	var long = response.tracks.items[0].album.artists.length;
 
-    	//Variables to store the values to be displayed
-    	var song = response.tracks.items[0].name;
+    	
 
-        // This is in case that more than 1 singer performs the track. (i.e. Track: Despacito Artist: Luis Fonsi, Daddy Yankee )
-    	for (var i = 0; i<long ; i++) {
-    		artists = artists + response.tracks.items[0].album.artists[i].name + ". ";
-    	}
-   		var album = response.tracks.items[0].album.name;
-   		var link = response.tracks.items[0].external_urls.spotify;
+	    	fs.writeFile("infoSong.txt", infoSong, function(err) {
+	    		if (err) {
+	      			return console.log(err);
+	    		}
+      		});
 
-   		//Display of the information on screen
-		console.log("\n\nSpotify response:\n\nSong: " + song);
-   		console.log("\nArtist: " + artists);
-    	console.log("\nAlbum: " + album);
-   		console.log("\nSpotify's link: " + link);   	
+      		//================================
+  //     		fs.readFile("infoSong.txt", "utf8", function(err, data) {
+		//     if (err) {
+		//       return console.log(err);
+		//     }
+		// console.log("Final Info: " + data);
+  //   });
+      		//=========================================
 
-   		});
-	})
+    	// console.log(response);
+  		})
   	.catch(function(err) {
-    	console.log(err);
-	});
+    console.log(err);
+  });
 }
 
 
 function movie() {
 	//Then run a request to the OMDB API with the movie specified
-    var queryUrl = "http://www.omdbapi.com/?t=" + nameMovieOrSong + "&y=&plot=short&apikey=trilogy";
+    var queryUrl = "http://www.omdbapi.com/?t=" + movieSongName + "&y=&plot=short&apikey=trilogy";
 
     //This line is just to help us debug against the actual URL.
 	// console.log(queryUrl);
+// fs.readFile("movies.txt", "utf8", function(error, data) {
 	request(queryUrl, function(error, response, body) {
 
 		// If the request is successful
@@ -194,4 +199,9 @@ function movie() {
 function doWhatItSays() {
 	console.log("Here goes theJSON.parse(body).Year code for Do Wat It Says");
 };
+
+function notAnOption() {
+	console.log("Not a valid option");
+}
+
 
